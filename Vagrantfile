@@ -67,7 +67,7 @@ Vagrant.configure("2") do |config|
   config.vm.provision "shell", inline: <<-SHELL
     add-apt-repository ppa:ethereum/ethereum
     apt-get update
-    apt-get install solc geth
+    apt-get install solc geth bootnode make
   SHELL
 
   config.vm.provision "shell", inline: <<-SHELL

@@ -1,4 +1,5 @@
 *.abi
 *.bin
 .vagrant
-
+*.log
+node_modules
