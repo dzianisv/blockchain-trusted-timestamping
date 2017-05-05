@@ -14,6 +14,7 @@ init:
 
 prepare: init
 	cd src && npm install
-
+analyze:
+	echo $$(grep "Removed cap-exceeding queued transaction" src/*.log | wc -l) transaction were discarded
 test:
 	cd src && npm start

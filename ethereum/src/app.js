@@ -5,7 +5,16 @@ const fs = require('fs');
 const crypto = require('crypto');
 const assert = require('assert');
 const child_process = require('child_process');
-const thenify = require('thenify');
+
+const thenify = function (f) {
+  return function (...args) {
+    return new Promise((resolve, reject) => {
+      f(...args, function (err, result) {
+        return err ? reject(err) : resolve(result);
+      })
+    });
+  };
+}
 
 const options = {};
 // spawn the bootnode for peers discovery
@@ -13,8 +22,8 @@ child_process.spawn('bootnode', ['--nodekey', 'bootnode.key']);
 
 //spawn Ethereum clients and connect to boostrap node, first client will mine blocks
 const clients = [
-  child_process.spawn('/usr/bin/geth', '--identity node0 --networkid 85 --verbosity 4 --datadir ~/.ethereum-test/0 --password secrets.txt --port 30303 --rpcport 8545 --unlock 0 --bootnodes enode://e1e68e4bd5505d4f2a14319b5da4d6b499de34c1e86021c14f535706202ba52fc73c61ecbadc44acfa53939de9747183fe3c5f5a80a3980e990eed22567d0e48@[::1]:30301 --rpc --mine --minerthreads 1'.split(' '), options),
-  child_process.spawn('/usr/bin/geth', '--identity node1 --networkid 85 --verbosity 4 --datadir ~/.ethereum-test/1 --password secrets.txt --port 30304 --rpcport 8546 --unlock 0 --bootnodes enode://e1e68e4bd5505d4f2a14319b5da4d6b499de34c1e86021c14f535706202ba52fc73c61ecbadc44acfa53939de9747183fe3c5f5a80a3980e990eed22567d0e48@[::1]:30301 --rpc'.split(' '), options)
+  child_process.spawn('/usr/bin/geth', '--identity node0 --networkid 85 --verbosity 3 --datadir ~/.ethereum-test/0 --password secrets.txt --port 30303 --rpcport 8545 --unlock 0 --bootnodes enode://e1e68e4bd5505d4f2a14319b5da4d6b499de34c1e86021c14f535706202ba52fc73c61ecbadc44acfa53939de9747183fe3c5f5a80a3980e990eed22567d0e48@[::1]:30301 --rpc --maxpeers 1 --mine --minerthreads 1'.split(' '), options),
+  child_process.spawn('/usr/bin/geth', '--identity node1 --networkid 85 --verbosity 3 --datadir ~/.ethereum-test/1 --password secrets.txt --port 30304 --rpcport 8546 --unlock 0 --bootnodes enode://e1e68e4bd5505d4f2a14319b5da4d6b499de34c1e86021c14f535706202ba52fc73c61ecbadc44acfa53939de9747183fe3c5f5a80a3980e990eed22567d0e48@[::1]:30301 --rpc'.split(' '), options)
 ];
 
 // redirect stdout and stderr to log files
@@ -48,8 +57,10 @@ setTimeout(() => {
     gas: '4700000'
   }, function (e, contract) {
 
-    if (e)
+    if (e) {
       console.log(e);
+      process.exit();
+    }
 
     if (typeof contract.address !== 'undefined') {
       // contract was registered in blockchain (transaction was added to block)
@@ -76,7 +87,7 @@ setTimeout(() => {
         console.log(`Puting ${documentHashes.length} timestamps time: ${duration}`);
         console.log(`${documentHashes.length / duration} timestamps/s', Timestamp putting duration: ${duration / documentHashes.length}s`);
 
-        // wait for next block for 17s
+        // wait for next block
         setTimeout(function () {
           var count = api[0].eth.getBlockTransactionCount('pending');
           assert(count == 0);
@@ -93,13 +104,14 @@ setTimeout(() => {
 
           console.log((new Date()).toISOString(), 'getting transactions inforamtion');
           // check that all transaction were added to blockchain on the second Ethreum client
-          Promise.all(transactions.map(function (t) {
-              thenify(api[1].eth.getTransaction)(t);
-          })).then(addedTransactions => {
-              console.log(addedTransactions);
-              console.log(addedTransactions.filter(t => t).length, 'transactions were added to blockchain');
-          });
-        }, 120000);
+          for (let i = 0; i < api.length; i++) {
+            Promise.all(transactions.map(function (t) {
+              return thenify(api[0].eth.getTransaction)(t);
+            })).then(addedTransactions => {
+              console.log(addedTransactions.filter(t => t).length, 'transactions were added to blockchain on', i, '-th client');
+            });
+          }
+        }, 20000);
       }).catch(error => {
         console.error(error);
       });

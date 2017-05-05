@@ -71,6 +71,7 @@ Vagrant.configure("2") do |config|
   SHELL
 
   config.vm.provision "shell", inline: <<-SHELL
-    apt-get install make
+    curl -sL https://deb.nodesource.com/setup_7.x | sudo -E bash -
+    apt-get install make nodejs nodejs-legacy
   SHELL
 end
