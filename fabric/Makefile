@@ -1,5 +1,5 @@
 all: release
-	release/linux-amd64/get-docker-images.sh
+	release/linux-amd64/install/get-docker-images.sh
 	cd release/samples/e2e && ./network_setup.sh up mychannel
 
 release:
