@@ -95,11 +95,11 @@ setTimeout(() => {
           // check that timestamps were added to blockchain on the second Ethereum client
           console.log((new Date()).toISOString(), 'getting timestamps');
           const constractInstance1 = api[1].eth.contract(abi).at(contract.address);
-          let start = Date.now();
           Promise.all(documentHashes.map((h) => {
             return thenify(constractInstance1.get.call)(h);
           })).then(addedTimestamps => {
-            console.log(addedTimestamps.filter(t => t).length, 'timestamps are set');
+            console.log(JSON.stringify(addedTimestamps));
+            console.log(addedTimestamps.filter(t => parseInt(t)).length, 'timestamps are set');
           });
 
           console.log((new Date()).toISOString(), 'getting transactions inforamtion');

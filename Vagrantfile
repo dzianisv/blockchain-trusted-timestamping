@@ -67,11 +67,18 @@ Vagrant.configure("2") do |config|
   config.vm.provision "shell", inline: <<-SHELL
     add-apt-repository ppa:ethereum/ethereum
     apt-get update
-    apt-get install solc geth bootnode make
+    apt-get install -yq solc geth bootnode make
   SHELL
 
   config.vm.provision "shell", inline: <<-SHELL
     curl -sL https://deb.nodesource.com/setup_7.x | sudo -E bash -
-    apt-get install make nodejs nodejs-legacy
+    apt-get install -yq  make nodejs
+  SHELL
+
+  config.vm.provision "shell", inline: <<-SHELL
+    apt-get install -yq docker.io docker-compose golang
+    gpasswd -a ubuntu docker
+    echo "export GOPATH=~/gopath" > /etc/profile.d/gopath.sh
+    chmod a+x /etc/profile.d/gopath.sh
   SHELL
 end
