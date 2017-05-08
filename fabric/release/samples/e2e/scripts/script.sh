@@ -81,7 +81,7 @@ instantiateChaincode () {
 	return $?
 }
 
-chaincodeQuery () {
+get () {
   PEER=$1
   setGlobals $PEER
   local rc=1
@@ -99,10 +99,11 @@ chaincodeQuery () {
   done
 }
 
-chaincodeInvoke () {
+put () {
 	PEER=$1
+	HASH=$2
 	setGlobals $PEER
-	peer chaincode invoke -o orderer.example.com:7050 -C $CHANNEL_NAME -n $CHAINCODE_NAME -c '{"Args":["invoke","a","b","10"]}'
+	peer chaincode invoke -o orderer.example.com:7050 -C $CHANNEL_NAME -n $CHAINCODE_NAME -c '{"Args":["put","$2"]}'
 	return $?
 }
 
@@ -118,8 +119,11 @@ installChaincode 0 || echo "Failed to install the chaincode on first peer"
 installChaincode 1 || echo "Failed to install the chaincode on second peer"
 
 instantiateChaincode 0 || echo "Failed to instantiate the chaincode on first peer"
+sleep 30
+
+put 0 $(date | sha256sum) || echo "Failed to put hash"
+put 0 $(date | sha256sum) || echo "Failed to put hash"
+put 0 $(date | sha256sum) || echo "Failed to put hash"
 
 # # #Query on chaincode on Peer0/Org0
-# chaincodeQuery 0 100 || echo "Failed to query data from smart-contract"
-
-# chaincodeInvoke 0 || echo "Failed to invoke chaincode on first peer"
+# get 0 100 || echo "Failed to query data from smart-contract"
