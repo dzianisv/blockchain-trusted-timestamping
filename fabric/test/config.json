@@ -1,0 +1,20 @@
+{
+   "jwt_expiretime": "3600",
+   "channelName":"mychannel",
+   "GOPATH": "../../chaincodes/go",
+   "chaincode": {
+	    "name": "timestamping-chaincode",
+	    "version": "1.0",
+	    "path": "timestamping"
+    },
+   "keyValueStore":"/tmp/fabric-client-kvs",
+   "orgsList": ["org1","org2"],
+   "eventWaitTime":"60000",
+   "orderer":"grpcs://localhost:7050",
+   "users":[
+      {
+         "username":"admin",
+         "secret":"adminpw"
+      }
+   ]
+}

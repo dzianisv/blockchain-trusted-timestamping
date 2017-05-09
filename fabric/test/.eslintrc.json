@@ -1,0 +1,13 @@
+{
+    "extends": "standard",
+    "plugins": [
+        "standard",
+        "promise"
+    ],
+    "rules": {
+        "no-tabs": "warn",
+        "no-unuse": "warn",
+        "camelcase": "warn",
+        "no-unused-vars": "warn"
+    }
+}

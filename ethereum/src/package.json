@@ -5,12 +5,17 @@
   "main": "run.js",
   "scripts": {
     "start": "node app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint-init": "eslint --init",
+    "lint": "eslint . --fix"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "thenify": "^3.2.1",
     "web3": "^0.18.4"
+  },
+  "devDependencies": {
+    "eslint": "^3.19.0"
   }
 }

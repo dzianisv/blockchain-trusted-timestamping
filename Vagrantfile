@@ -72,7 +72,7 @@ Vagrant.configure("2") do |config|
 
   config.vm.provision "shell", inline: <<-SHELL
     curl -sL https://deb.nodesource.com/setup_7.x | sudo -E bash -
-    apt-get install -yq  make nodejs
+    apt-get install -yq  make nodejs python3 python3-pip
   SHELL
 
   config.vm.provision "shell", inline: <<-SHELL
