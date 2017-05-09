@@ -47,29 +47,23 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 		if len(args) < 1 {
 			return shim.Error("put operation must include one arguments")
 		}
+
 		key := args[0]
 		value := make([]byte, 8)
-		ts, _ := stub.GetTxTimestamp()
-		binary.LittleEndian.PutUint64(value, uint64(ts.Seconds))
+		// ts, txErr := stub.GetTxTimestamp() //in fabric 1.0.0-alpha this function always returns nil, nill
+		var ts int64 = 1494321113
+
+		// if txErr != nil || ts == nil {
+		// 	return shim.Error(fmt.Sprintf("put operation failed. Error getting tx timestamp: %s", txErr))
+		// }
+		binary.LittleEndian.PutUint64(value, uint64(ts))
 
 		if err := stub.PutState(key, []byte(value)); err != nil {
 			fmt.Printf("Error putting state %s", err)
 			return shim.Error(fmt.Sprintf("put operation failed. Error updating state: %s", err))
 		}
 
-		indexName := "compositeKeyTest"
-		compositeKeyTestIndex, err := stub.CreateCompositeKey(indexName, []string{key})
-		if err != nil {
-			return shim.Error(err.Error())
-		}
-
-		valueByte := []byte{0x00}
-		if err := stub.PutState(compositeKeyTestIndex, valueByte); err != nil {
-			fmt.Printf("Error putting state with compositeKey %s", err)
-			return shim.Error(fmt.Sprintf("put operation failed. Error updating state with compositeKey: %s", err))
-		}
-
-		return shim.Success(nil)
+		return shim.Success(value)
 	case "get":
 		if len(args) < 1 {
 			return shim.Error("get operation must include one argument, a key")
@@ -91,11 +85,11 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 
 		var keys []string
 		for keysIter.HasNext() {
-			response, iterErr := keysIter.Next()
+			key, _, iterErr := keysIter.Next()
 			if iterErr != nil {
 				return shim.Error(fmt.Sprintf("query operation failed. Error accessing state: %s", err))
 			}
-			keys = append(keys, response.Key)
+			keys = append(keys, key)
 		}
 
 		jsonKeys, err := json.Marshal(keys)

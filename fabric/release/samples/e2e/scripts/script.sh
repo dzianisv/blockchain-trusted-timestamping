@@ -108,22 +108,22 @@ put () {
 }
 
 # ## Create channel
-createChannel || echo "Failed to create a channel $CHANNEL_NAME"
+createChannel || exit 1
 
 ## Join all the peers to the channel
-joinChannel || echo "Failed to join to channel $CHANNEL_NAME"
+joinChannel || exit 1
 
 
 ## Install chaincode on Peer0/Org0 and Peer2/Org1
-installChaincode 0 || echo "Failed to install the chaincode on first peer"
-installChaincode 1 || echo "Failed to install the chaincode on second peer"
+installChaincode 0 || exit 1
+installChaincode 1 || exit 1
 
-instantiateChaincode 0 || echo "Failed to instantiate the chaincode on first peer"
+instantiateChaincode 0 || exit 1
 sleep 30
 
-put 0 $(date | sha256sum) || echo "Failed to put hash"
-put 0 $(date | sha256sum) || echo "Failed to put hash"
-put 0 $(date | sha256sum) || echo "Failed to put hash"
+put 0 $(date | sha256sum) || exit 1
+put 0 $(date | sha256sum) || exit 1
+put 0 $(date | sha256sum) || exit 1
 
 # # #Query on chaincode on Peer0/Org0
 # get 0 100 || echo "Failed to query data from smart-contract"
